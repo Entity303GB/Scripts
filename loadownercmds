@@ -224,11 +224,15 @@ local function executeCommand(origin, cmd, args)
 			end
 		end
 
+	-- REMOVE START
+	--[[
 	elseif cmd == ".rejoin" then
 		if origin == LocalPlayer then
 			TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, origin)
 			adminLog("Rejoining the game...")
 		end
+	--]]
+	-- REMOVE END
 
 	elseif cmd == ".sit" then
 		local target = shiftFirst(args, true)
