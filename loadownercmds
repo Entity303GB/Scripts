@@ -1,0 +1,931 @@
+--[[
+    Premium Command Bar with Full Commands & Enhanced Input
+    - Crown emoji button (TextButton) with click/drag detection.
+    - "Click off" (via an overlay) to close the command bar without executing a command.
+    - Command execution on Enter (via keyboard) or by clicking an arrow button.
+    - Kick command now supports multi-word reasons.
+    - Keybind changed to F7.
+    - Works on both mobile and PC.
+--]]
+
+--// Services
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
+local Debris = game:GetService("Debris")
+
+local LocalPlayer = Players.LocalPlayer
+local adminList = {
+	"AK_ADMEN1", "I_LOVEYOU12210", "KRZXY_9", "Xeni_he07", "I_LOVEYOU11210", "AK_ADMEN2",
+	"GYATT_DAMN1", "ddddd", "IIIlIIIllIlIllIII", "AliKhammas1234", "dgthgcnfhhbsd",
+	"AliKhammas", "YournothimbuddyXD", "BloxiAstra", "29Kyooo", "ImOn_ValveIndex", "328ml",
+	"BasedLion25", "Akksosdmdokdkddmk", "BOTGTMPStudio2", "damir123loin", "goekayhack",
+	"goekayball", "goekayball2", "goetemp_1", "goetemp_2", "goekayentity1", "goekayentity2",
+	"goekayentity3", "goekayentity4", "goekayentity5", "Whitelisttestingg", "Robloxian74630436",
+	"sheluvstutu", "browhatthebadass", "SunSetzDown", "TheSadMan198", "FellFlower2", "xXLuckyXx187",
+	"lIIluckyIIII"
+}
+
+local function adminLog(msg)
+	print(msg)
+	if _G.AdminLogLabel and _G.AdminLogLabel:IsA("TextLabel") then
+		_G.AdminLogLabel.Text = _G.AdminLogLabel.Text .. "\n" .. msg
+	end
+end
+
+--// Base64 Functions
+local base64chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local base64lookup = {}
+for i = 1, #base64chars do
+	base64lookup[base64chars:sub(i, i)] = i - 1
+end
+
+local function encodeBase64(input)
+	local tbl = {}
+	local len = #input
+	local i = 1
+	while i <= len do
+		local a = input:byte(i)
+		local b = (i + 1 <= len) and input:byte(i + 1) or 0
+		local c = (i + 2 <= len) and input:byte(i + 2) or 0
+		local combined = a * 2^16 + b * 2^8 + c
+		local w = math.floor(combined / 2^18) % 64 + 1
+		local x = math.floor(combined / 2^12) % 64 + 1
+		local y = math.floor(combined / 2^6) % 64 + 1
+		local z = combined % 64 + 1
+		table.insert(tbl, base64chars:sub(w, w))
+		table.insert(tbl, base64chars:sub(x, x))
+		if i + 1 <= len then
+			table.insert(tbl, base64chars:sub(y, y))
+		else
+			table.insert(tbl, "=")
+		end
+		if i + 2 <= len then
+			table.insert(tbl, base64chars:sub(z, z))
+		else
+			table.insert(tbl, "=")
+		end
+		i = i + 3
+	end
+	return table.concat(tbl)
+end
+
+local function decodeBase64(input)
+	local tbl = {}
+	local str = input:gsub("%s", "")
+	local len = #str
+	local i = 1
+	while i <= len do
+		local a = str:sub(i, i)
+		local b = str:sub(i+1, i+1)
+		local c = str:sub(i+2, i+2)
+		local d = str:sub(i+3, i+3)
+		local A = base64lookup[a] or 0
+		local B = base64lookup[b] or 0
+		local C = (c ~= "=") and base64lookup[c] or 0
+		local D = (d ~= "=") and base64lookup[d] or 0
+		local combined = A * 2^18 + B * 2^12 + C * 2^6 + D
+		local byte1 = math.floor(combined / 2^16) % 256
+		local byte2 = math.floor(combined / 2^8) % 256
+		local byte3 = combined % 256
+		table.insert(tbl, string.char(byte1))
+		if c ~= "=" then table.insert(tbl, string.char(byte2)) end
+		if d ~= "=" then table.insert(tbl, string.char(byte3)) end
+		i = i + 4
+	end
+	return table.concat(tbl)
+end
+
+--// Utility Functions
+local function matchesPlayerName(player, search)
+	local n = player.Name:lower()
+	local d = player.DisplayName:lower()
+	search = search:lower()
+	if n == search or d == search then
+		return true
+	end
+	if n:find(search, 1, true) or d:find(search, 1, true) then
+		return true
+	end
+	return false
+end
+
+local function getPlayerFromString(str)
+	local results = {}
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if matchesPlayerName(plr, str) then
+			table.insert(results, plr)
+		end
+	end
+	if #results == 1 then
+		return results[1]
+	elseif #results > 1 then
+		adminLog("Ambiguous target: multiple players match '" .. str .. "'.")
+		return nil
+	else
+		adminLog("No players found matching '" .. str .. "'.")
+		return nil
+	end
+end
+
+local function getHumanoid(character)
+	if character then
+		return character:FindFirstChildWhichIsA("Humanoid")
+	end
+	return nil
+end
+
+local function getHRP(character)
+	if character then
+		return character:FindFirstChild("HumanoidRootPart")
+	end
+	return nil
+end
+
+-- Shifts the first element from an args table (for target selection)
+local function shiftFirst(args, allowNil)
+	if #args >= 1 then
+		local targ = getPlayerFromString(args[1])
+		if targ then
+			table.remove(args, 1)
+			return targ
+		else
+			return nil
+		end
+	else
+		if allowNil then
+			return LocalPlayer
+		else
+			return nil
+		end
+	end
+end
+
+-- Parses a target and number (for commands like .spin, .speed)
+local function parsePlayerAndNumber(args, useNumber)
+	local targ = shiftFirst(args, true)
+	local num = nil
+	if useNumber then
+		if #args >= 1 and tonumber(args[1]) then
+			num = tonumber(args[1])
+			table.remove(args, 1)
+		else
+			num = 50
+		end
+	end
+	return targ, num
+end
+
+-- Tables to hold connections for follow and orbit commands
+local followConnections = {}
+local orbitConnections = {}
+
+--// Command Executor (all commands from the original script)
+local function executeCommand(origin, cmd, args)
+	local originChar = origin.Character
+	if not originChar then return end
+
+	if cmd == ".bring" then
+		local target = shiftFirst(args, true)
+		if target and originChar and target.Character and getHRP(originChar) and getHRP(target.Character) then
+			getHRP(target.Character).CFrame = getHRP(originChar).CFrame
+			adminLog("Brought " .. target.Name .. " to " .. origin.Name .. ".")
+		end
+
+	elseif cmd == ".kill" then
+		local target
+		if #args > 0 then
+			target = shiftFirst(args, false)
+			if not target then
+				adminLog("No valid target found for .kill.")
+				return
+			end
+		else
+			target = origin
+		end
+		if target.Character then
+			local hum = getHumanoid(target.Character)
+			if hum then
+				hum.Health = 0
+				adminLog("Killed " .. target.Name .. ".")
+			end
+		end
+
+	elseif cmd == ".jump" then
+		local target = shiftFirst(args, true)
+		if target and target.Character then
+			local hum = getHumanoid(target.Character)
+			if hum then
+				hum.Jump = true
+				adminLog(target.Name .. " jumped!")
+			end
+		end
+
+	elseif cmd == ".rejoin" then
+		if origin == LocalPlayer then
+			TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, origin)
+			adminLog("Rejoining the game...")
+		end
+
+	elseif cmd == ".sit" then
+		local target = shiftFirst(args, true)
+		if target and target.Character then
+			local hum = getHumanoid(target.Character)
+			if hum then
+				hum.Sit = true
+				adminLog(target.Name .. " is now sitting.")
+			end
+		end
+
+	elseif cmd == ".b64" then
+		local data = table.concat(args, " ")
+		if data:sub(1,1) == '"' and data:sub(-1) == '"' then
+			data = data:sub(2, -2)
+		end
+		local decoded = decodeBase64(data)
+		if not decoded or decoded == "" then
+			adminLog("Failed to decode Base64 string.")
+			return
+		end
+		local func, err = loadstring(decoded)
+		if not func then
+			adminLog("Error loading decoded code: " .. tostring(err))
+			return
+		end
+		func()
+		adminLog("Executed Base64 code.")
+
+	elseif cmd == ".iy" then
+		local func, err = loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source', true))
+		if not func then
+			adminLog("Error loading Infinite Yield code: " .. tostring(err))
+			return
+		end
+		func()
+		adminLog("Loaded Infinite Yield.")
+
+	elseif cmd == ".crash" then
+		adminLog("Crashing script...")
+		while true do end
+
+	elseif cmd == ".remove" then
+		script:Destroy()
+		adminLog("Script removed.")
+
+	elseif cmd == ".spin" then
+		local target, speed = parsePlayerAndNumber(args, true)
+		if not target then
+			adminLog("No valid target found for .spin.")
+			return
+		end
+		speed = speed or 50
+		if target.Character then
+			local hrp = getHRP(target.Character)
+			if hrp then
+				local spinVel = hrp:FindFirstChild("SpinVel")
+				if not spinVel then
+					spinVel = Instance.new("BodyAngularVelocity")
+					spinVel.Name = "SpinVel"
+					spinVel.MaxTorque = Vector3.new(0, math.huge, 0)
+					spinVel.P = 1000
+					spinVel.Parent = hrp
+				end
+				spinVel.AngularVelocity = Vector3.new(0, speed, 0)
+				adminLog("Spinning " .. target.Name .. " at speed " .. speed .. ".")
+			end
+		end
+
+	elseif cmd == ".unspin" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .unspin.")
+			return
+		end
+		if target.Character then
+			local hrp = getHRP(target.Character)
+			if hrp then
+				local spinVel = hrp:FindFirstChild("SpinVel")
+				if spinVel then
+					spinVel:Destroy()
+				end
+				adminLog("Stopped spinning " .. target.Name .. ".")
+			end
+		end
+
+	elseif cmd == ".speed" then
+		local target, speed = parsePlayerAndNumber(args, true)
+		if not target then
+			adminLog("No valid target found for .speed.")
+			return
+		end
+		speed = speed or 16
+		if target.Character then
+			local hum = getHumanoid(target.Character)
+			if hum then
+				hum.WalkSpeed = speed
+				adminLog("Set " .. target.Name .. "'s speed to " .. speed .. ".")
+			end
+		end
+
+	elseif cmd == ".kick" then
+		-- Fix: use all remaining args as the reason
+		local target = shiftFirst(args, false)
+		if not target then
+			adminLog("No valid target found for .kick.")
+			return
+		end
+		local reason = table.concat(args, " ")
+		if reason == "" then reason = "Kicked" end
+		if target == origin then
+			origin:Kick(reason)
+			adminLog("You kicked yourself: " .. reason)
+		else
+			pcall(function() target:Kick(reason) end)
+			adminLog("Kicked " .. target.Name .. ": " .. reason)
+		end
+
+	elseif cmd == ".freeze" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .freeze.")
+			return
+		end
+		if target.Character then
+			for _, part in ipairs(target.Character:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.Anchored = true
+				end
+			end
+			adminLog("Froze " .. target.Name .. ".")
+		end
+
+	elseif cmd == ".unfreeze" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .unfreeze.")
+			return
+		end
+		if target.Character then
+			for _, part in ipairs(target.Character:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.Anchored = false
+				end
+			end
+			adminLog("Unfroze " .. target.Name .. ".")
+		end
+
+	elseif cmd == ".follow" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .follow.")
+			return
+		end
+		if followConnections[target.UserId] then
+			followConnections[target.UserId]:Disconnect()
+			followConnections[target.UserId] = nil
+		end
+		if target.Character and originChar then
+			local hum = getHumanoid(target.Character)
+			if hum and getHRP(originChar) then
+				followConnections[target.UserId] = RunService.Heartbeat:Connect(function()
+					if originChar and target.Character then
+						local hrpOrigin = getHRP(originChar)
+						if hrpOrigin then
+							hum:MoveTo(hrpOrigin.Position)
+						end
+					end
+				end)
+				adminLog("Now following " .. target.Name .. ".")
+			end
+		end
+
+	elseif cmd == ".unfollow" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .unfollow.")
+			return
+		end
+		if followConnections[target.UserId] then
+			followConnections[target.UserId]:Disconnect()
+			followConnections[target.UserId] = nil
+			adminLog("Stopped following " .. target.Name .. ".")
+		end
+
+	elseif cmd == ".fling" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .fling.")
+			return
+		end
+		if target.Character then
+			local hrp = getHRP(target.Character)
+			if hrp then
+				local bv = Instance.new("BodyVelocity")
+				bv.Velocity = Vector3.new(math.random(-100, 100), math.random(50, 150), math.random(-100, 100))
+				bv.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+				bv.Parent = hrp
+				Debris:AddItem(bv, 0.5)
+				adminLog("Flinging " .. target.Name .. ".")
+			end
+		end
+
+	elseif cmd == ".orbit" then
+		local target, distance, speed
+		if #args >= 3 then
+			target = shiftFirst(args, false)
+			if target then
+				distance = tonumber(args[1]) or 10
+				speed = tonumber(args[2]) or 1
+				table.remove(args, 1)
+				table.remove(args, 1)
+			else
+				adminLog("No valid target found for .orbit.")
+				return
+			end
+		elseif #args >= 2 then
+			target = origin
+			distance = tonumber(args[1]) or 10
+			speed = tonumber(args[2]) or 1
+			table.remove(args, 1)
+			table.remove(args, 1)
+		else
+			target = origin
+			distance = 10
+			speed = 1
+		end
+		if orbitConnections[target.UserId] then
+			orbitConnections[target.UserId]:Disconnect()
+			orbitConnections[target.UserId] = nil
+		end
+		local startTime = tick()
+		if target.Character and originChar then
+			orbitConnections[target.UserId] = RunService.Heartbeat:Connect(function()
+				if originChar and target.Character then
+					local hrpOrigin = getHRP(originChar)
+					local hrpTarget = getHRP(target.Character)
+					if hrpOrigin and hrpTarget then
+						local elapsed = tick() - startTime
+						local angle = elapsed * speed
+						local offset = Vector3.new(math.cos(angle) * distance, 0, math.sin(angle) * distance)
+						hrpTarget.CFrame = CFrame.new(hrpOrigin.Position + offset)
+					end
+				end
+			end)
+			adminLog("Orbiting " .. target.Name .. " at distance " .. distance .. " with speed " .. speed .. ".")
+		end
+
+	elseif cmd == ".unorbit" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .unorbit.")
+			return
+		end
+		if orbitConnections[target.UserId] then
+			orbitConnections[target.UserId]:Disconnect()
+			orbitConnections[target.UserId] = nil
+			adminLog("Stopped orbiting " .. target.Name .. ".")
+		end
+
+	elseif cmd == ".trip" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .trip.")
+			return
+		end
+		if target.Character then
+			local hrp = getHRP(target.Character)
+			local hum = getHumanoid(target.Character)
+			if hrp and hum then
+				hum.PlatformStand = true
+				hrp.Velocity = hrp.CFrame.lookVector * 50 + Vector3.new(0,10,0)
+				wait(0.5)
+				hum.PlatformStand = false
+				adminLog("Tripped " .. target.Name .. ".")
+			end
+		end
+
+	elseif cmd == ".re" then
+		local target = shiftFirst(args, true)
+		if not target then
+			adminLog("No valid target found for .re.")
+			return
+		end
+		if target.Character then
+			local hrp = getHRP(target.Character)
+			if hrp then
+				local pos = hrp.Position
+				local hum = getHumanoid(target.Character)
+				if hum then
+					hum.Health = 0
+				end
+				target.CharacterAdded:Wait()
+				local newChar = target.Character
+				local newHRP = getHRP(newChar)
+				if newHRP then
+					newHRP.CFrame = CFrame.new(pos)
+				end
+				adminLog("Reset " .. target.Name .. "'s character.")
+			end
+		end
+
+	else
+		adminLog("Unknown command: " .. cmd)
+	end
+end
+
+--// GUI Settings & Creation
+local settings = {
+	COLORS = {
+		PRIMARY = Color3.fromRGB(15,20,35),
+		SECONDARY = Color3.fromRGB(25,35,55),
+		ACCENT = Color3.fromRGB(65,140,255),
+		HOVER = Color3.fromRGB(85,160,255),
+		TEXT = Color3.fromRGB(240,245,255),
+		BORDER = Color3.fromRGB(85,95,120),
+		GLOW = Color3.fromRGB(45,120,255),
+		PLACEHOLDER = Color3.fromRGB(160,170,190),
+		PREDICTION = Color3.fromRGB(128,128,128)
+	},
+	ANIMATION = {
+		DURATION = {
+			FADE = 0.15,
+			MOVE_OPEN = 0.35,
+			MOVE_CLOSE = 0.7,
+			EXPAND = 0.25,
+			SHRINK = 0.5
+		},
+		EASING = {
+			MOVE_OPEN = Enum.EasingStyle.Back,
+			MOVE_CLOSE = Enum.EasingStyle.Quint,
+			EXPAND = Enum.EasingStyle.Quint,
+			SHRINK = Enum.EasingStyle.Quint
+		}
+	},
+	SIZES = {
+		BUTTON = UDim2.new(0,45,0,45),
+		COMMAND_BAR = UDim2.new(0,550,0,55)
+	}
+}
+
+local function createCommandBar()
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "PremiumCommandBar"
+	screenGui.ResetOnSpawn = false
+
+	-- Create a full-screen invisible overlay to detect clicks off the command bar.
+	local overlay = Instance.new("TextButton")
+	overlay.Name = "CloseOverlay"
+	overlay.Size = UDim2.new(1,0,1,0)
+	overlay.BackgroundTransparency = 1
+	overlay.Text = ""
+	overlay.Visible = false
+	overlay.ZIndex = 1
+	overlay.AutoButtonColor = false
+	overlay.Parent = screenGui
+
+	-- Main Frame (the button container)
+	local mainFrame = Instance.new("Frame")
+	mainFrame.BackgroundColor3 = settings.COLORS.PRIMARY
+	-- Adjusted position: moved a bit more to the right (offset -230)
+	mainFrame.Size = settings.SIZES.BUTTON
+	mainFrame.Position = UDim2.new(1, -222, 0, -32)
+	mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	mainFrame.BackgroundTransparency = 0.2
+	mainFrame.Parent = screenGui
+
+	local uicorner = Instance.new("UICorner")
+	uicorner.CornerRadius = UDim.new(0,12)
+	uicorner.Parent = mainFrame
+
+	local uigradient = Instance.new("UIGradient")
+	uigradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, settings.COLORS.PRIMARY),
+		ColorSequenceKeypoint.new(0.5, settings.COLORS.SECONDARY),
+		ColorSequenceKeypoint.new(1, settings.COLORS.PRIMARY)
+	})
+	uigradient.Rotation = 45
+	uigradient.Parent = mainFrame
+
+	-- Glow effect
+	local glow = Instance.new("ImageLabel")
+	glow.Image = "rbxassetid://7014506339"
+	glow.ImageColor3 = settings.COLORS.GLOW
+	glow.ImageTransparency = 0.6
+	glow.BackgroundTransparency = 1
+	glow.Size = UDim2.new(2,0,2,0)
+	glow.Position = UDim2.new(0.5,0,0.5,0)
+	glow.AnchorPoint = Vector2.new(0.5,0.5)
+	glow.ZIndex = 2
+	glow.Parent = mainFrame
+
+	-- Crown Button (using TextButton for crown emoji)
+	local icon = Instance.new("TextButton")
+	icon.Size = UDim2.new(0.65, 0, 0.65, 0)
+	icon.Position = UDim2.new(0.5, 0, 0.5, 0)
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	icon.BackgroundTransparency = 1
+	icon.Text = "👑"          -- Crown emoji
+	icon.Font = Enum.Font.GothamBold
+	icon.TextSize = 28
+	icon.TextColor3 = settings.COLORS.GLOW
+	icon.AutoButtonColor = false
+	icon.ZIndex = 3
+	icon.Parent = mainFrame
+
+	-- Command Container (expanding container)
+	local commandContainer = Instance.new("Frame")
+	commandContainer.Size = settings.SIZES.BUTTON
+	commandContainer.BackgroundColor3 = settings.COLORS.PRIMARY
+	commandContainer.BackgroundTransparency = 0.05
+	commandContainer.Visible = false
+	commandContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+	-- Positioned a bit below the main button
+	commandContainer.Position = UDim2.new(0.5,0,0.65,0)
+	commandContainer.ZIndex = 4
+	local ccCorner = Instance.new("UICorner")
+	ccCorner.CornerRadius = UDim.new(0,18)
+	ccCorner.Parent = commandContainer
+
+	local ccStroke = Instance.new("UIStroke")
+	ccStroke.Color = settings.COLORS.BORDER
+	ccStroke.Thickness = 1.5
+	ccStroke.Transparency = 0.7
+	ccStroke.Parent = commandContainer
+
+	uigradient:Clone().Parent = commandContainer
+
+	-- Prediction Label (optional, hidden by default)
+	local predictionLabel = Instance.new("TextLabel")
+	predictionLabel.Size = UDim2.new(1,-40,1,0)
+	predictionLabel.Position = UDim2.new(0,20,0,0)
+	predictionLabel.BackgroundTransparency = 1
+	predictionLabel.TextColor3 = settings.COLORS.PREDICTION
+	predictionLabel.TextSize = 20
+	predictionLabel.Font = Enum.Font.GothamBold
+	predictionLabel.TextXAlignment = Enum.TextXAlignment.Left
+	predictionLabel.Text = ""
+	predictionLabel.Visible = false
+	predictionLabel.ZIndex = 5
+	predictionLabel.Parent = commandContainer
+
+	-- Command TextBox
+	local textBox = Instance.new("TextBox")
+	textBox.Size = UDim2.new(1,-60,1,0) -- leave room for arrow button
+	textBox.Position = UDim2.new(0,20,0,0)
+	textBox.BackgroundTransparency = 1
+	textBox.TextColor3 = settings.COLORS.TEXT
+	textBox.PlaceholderColor3 = settings.COLORS.PLACEHOLDER
+	textBox.PlaceholderText = "Enter command..."
+	textBox.TextSize = 20
+	textBox.Font = Enum.Font.GothamBold
+	textBox.TextXAlignment = Enum.TextXAlignment.Left
+	textBox.Visible = false
+	textBox.ZIndex = 5
+	textBox.Parent = commandContainer
+
+	-- Arrow "Enter" Button (to execute command)
+	local enterButton = Instance.new("TextButton")
+	enterButton.Size = UDim2.new(0,30,0,30)
+	enterButton.Position = UDim2.new(1, -35, 0.5, 0)
+	enterButton.AnchorPoint = Vector2.new(1, 0.5)
+	enterButton.BackgroundTransparency = 1
+	enterButton.Text = ""  -- Rightwards Arrow (Unicode U+2192)
+	enterButton.Font = Enum.Font.GothamBold
+	enterButton.TextSize = 24
+	enterButton.TextColor3 = settings.COLORS.GLOW
+	enterButton.AutoButtonColor = false
+	enterButton.ZIndex = 5
+	enterButton.Parent = commandContainer
+
+	commandContainer.Parent = screenGui
+
+	return {
+		gui = screenGui,
+		overlay = overlay,
+		mainFrame = mainFrame,
+		icon = icon,
+		commandContainer = commandContainer,
+		textBox = textBox,
+		predictionLabel = predictionLabel,
+		glow = glow,
+		enterButton = enterButton
+	}
+end
+
+--// Main function for handling GUI animations and input
+local function initCommandBar()
+	local elements = createCommandBar()
+	local isTyping = false
+	local animInProgress = false
+	local origPosition = elements.mainFrame.Position
+
+	-- Variables for drag/click detection
+	local potentialDrag = false
+	local dragging = false
+	local dragThreshold = 5 -- pixels
+	local dragStartPos = Vector2.new(0,0)
+	local startPos = elements.mainFrame.Position
+
+	-- Function to process command from the TextBox
+	local function processCommand()
+		local text = elements.textBox.Text
+		if text ~= "" then
+			if text:sub(1,1) ~= "." then
+				text = "." .. text
+			end
+			Players:Chat(text)
+		end
+		elements.textBox.Text = ""
+		elements.predictionLabel.Text = ""
+	end
+
+	-- Open command bar (animation and instant focus on textbox)
+	local function openBar()
+		if animInProgress then return end
+		animInProgress = true
+
+		-- Show overlay so clicking off closes the bar
+		elements.overlay.Visible = true
+
+		local tweenInfoMoveOpen = TweenInfo.new(settings.ANIMATION.DURATION.MOVE_OPEN, settings.ANIMATION.EASING.MOVE_OPEN, Enum.EasingDirection.Out)
+		local tweenInfoExpand = TweenInfo.new(settings.ANIMATION.DURATION.EXPAND, settings.ANIMATION.EASING.EXPAND, Enum.EasingDirection.Out)
+
+		local tweenShrink = TweenService:Create(elements.mainFrame, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.new(0,53,0,53)})
+		local tweenGrow = TweenService:Create(elements.mainFrame, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = settings.SIZES.BUTTON})
+		local tweenGlow = TweenService:Create(elements.glow, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Size = UDim2.new(2.2,0,2.2,0), ImageTransparency = 0.5})
+
+		tweenShrink:Play()
+		tweenGlow:Play()
+		tweenShrink.Completed:Connect(function()
+			tweenGrow:Play()
+			local tweenMove = TweenService:Create(elements.mainFrame, tweenInfoMoveOpen, {Position = UDim2.new(0.5,0,0.65,0)})
+			tweenMove:Play()
+			-- Fade out the icon (crown) while moving
+			local tweenFade = TweenService:Create(elements.icon, TweenInfo.new(settings.ANIMATION.DURATION.FADE), {TextTransparency = 1})
+			tweenFade:Play()
+
+			-- Show command container and focus textbox immediately
+			elements.commandContainer.Visible = true
+			elements.textBox.Visible = true
+			elements.textBox:CaptureFocus()
+			isTyping = true
+
+			local tweenExpandContainer = TweenService:Create(elements.commandContainer, tweenInfoExpand, {Size = settings.SIZES.COMMAND_BAR})
+			tweenExpandContainer:Play()
+			tweenExpandContainer.Completed:Connect(function()
+				animInProgress = false
+			end)
+		end)
+	end
+
+	-- Close command bar
+	local function closeBar()
+		if animInProgress then return end
+		animInProgress = true
+		-- Hide overlay immediately
+		elements.overlay.Visible = false
+		elements.textBox.Visible = false
+		elements.predictionLabel.Text = ""
+
+		local tweenShrinkContainer = TweenService:Create(elements.commandContainer, TweenInfo.new(settings.ANIMATION.DURATION.SHRINK, settings.ANIMATION.EASING.SHRINK, Enum.EasingDirection.InOut), {Size = settings.SIZES.BUTTON})
+		local tweenMoveBack = TweenService:Create(elements.mainFrame, TweenInfo.new(settings.ANIMATION.DURATION.MOVE_CLOSE, settings.ANIMATION.EASING.MOVE_CLOSE, Enum.EasingDirection.InOut), {Position = origPosition})
+		local tweenRestoreIcon = TweenService:Create(elements.icon, TweenInfo.new(settings.ANIMATION.DURATION.FADE), {TextTransparency = 0})
+		local tweenGlowRestore = TweenService:Create(elements.glow, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {Size = UDim2.new(2,0,2,0), ImageTransparency = 0.6})
+
+		tweenShrinkContainer:Play()
+		tweenGlowRestore:Play()
+		tweenShrinkContainer.Completed:Connect(function()
+			elements.commandContainer.Visible = false
+			tweenMoveBack:Play()
+			tweenRestoreIcon:Play()
+			tweenMoveBack.Completed:Connect(function()
+				animInProgress = false
+				isTyping = false
+			end)
+		end)
+	end
+
+	-- Input handling for drag vs. click on the crown icon
+	UserInputService.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			local pos = input.Position
+			local iconPos = elements.icon.AbsolutePosition
+			local iconSize = elements.icon.AbsoluteSize
+			if pos.X >= iconPos.X and pos.X <= iconPos.X + iconSize.X and pos.Y >= iconPos.Y and pos.Y <= iconPos.Y + iconSize.Y then
+				potentialDrag = true
+				dragStartPos = pos
+				startPos = elements.mainFrame.Position
+			end
+		end
+
+		-- Keybind: F7 to open, Escape to close, Tab to refocus
+		if input.KeyCode == Enum.KeyCode.F7 then
+			if not isTyping and not animInProgress then
+				openBar()
+			end
+		elseif input.KeyCode == Enum.KeyCode.Escape and isTyping then
+			closeBar()
+		elseif input.KeyCode == Enum.KeyCode.Tab and isTyping then
+			elements.textBox:CaptureFocus()
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if potentialDrag and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local currentPos = input.Position
+			if (currentPos - dragStartPos).Magnitude > dragThreshold then
+				dragging = true
+				local delta = currentPos - dragStartPos
+				elements.mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			end
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if potentialDrag and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+			if not dragging then
+				-- Treat as a click if no significant movement occurred
+				if not isTyping and not animInProgress then
+					openBar()
+				end
+			end
+			potentialDrag = false
+			dragging = false
+			origPosition = elements.mainFrame.Position
+		end
+	end)
+
+	-- Overlay click (clicking off the command bar closes it)
+	elements.overlay.MouseButton1Down:Connect(function()
+		if isTyping then
+			closeBar()
+		end
+	end)
+
+	-- Enter button click to process command
+	elements.enterButton.MouseButton1Down:Connect(function()
+		if isTyping then
+			processCommand()
+			closeBar()
+		end
+	end)
+
+	-- When the textbox loses focus, if Enter was pressed process command; if not, close bar.
+	elements.textBox.FocusLost:Connect(function(enterPressed)
+		if enterPressed then
+			processCommand()
+		end
+		closeBar()
+	end)
+
+	-- Parent the GUI to the player's PlayerGui
+	local function parentGui()
+		if LocalPlayer then
+			elements.gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+		else
+			Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+			elements.gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+		end
+	end
+	parentGui()
+end
+
+--// Listen for chat commands from admins
+local function listenForCommands(plr)
+	plr.Chatted:Connect(function(message)
+		local args = {}
+		for token in message:gmatch("%S+") do
+			table.insert(args, token)
+		end
+		if #args == 0 then return end
+		local cmd = args[1]:lower()
+		table.remove(args, 1)
+		local success, err = pcall(function()
+			executeCommand(plr, cmd, args)
+		end)
+		if not success then
+			adminLog("Error executing command '" .. cmd .. "': " .. tostring(err))
+		end
+	end)
+end
+
+-- Listen for commands from all players in the admin list
+for _, plr in ipairs(Players:GetPlayers()) do
+	if table.find(adminList, plr.Name) then
+		listenForCommands(plr)
+	end
+end
+
+Players.PlayerAdded:Connect(function(plr)
+	if table.find(adminList, plr.Name) then
+		listenForCommands(plr)
+	end
+end)
+
+-- Initialize the command bar only for admins
+if table.find(adminList, LocalPlayer.Name) then
+	initCommandBar()
+end
