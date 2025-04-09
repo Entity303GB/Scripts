@@ -1,0 +1,11 @@
+return {
+    { username = "goetemp_1",     hwid = "hwid_goetemp1" },
+    { username = "goetemp_2",     hwid = "hwid_goetemp2" },
+    { username = "goetemp_3",     hwid = "hwid_goetemp3" },
+    { username = "Robloxian74630436", hwid = "hwid_Robloxian74630436" },
+    { username = "frezzzza6",     hwid = "hwid_frezzzza6" },
+    { username = "frezzza5",      hwid = "hwid_frezzza5" },
+    { username = "Oreo_101022",   hwid = "hwid_Oreo_101022" },
+    { username = "addicted2kj",   hwid = "hwid_addicted2kj" },
+    { username = "WASGEHTAB001",  hwid = "hwid_WASGEHTAB001" }
+}
