@@ -1,6 +1,6 @@
 return {
     { username = "goetemp_1", hwid = "hwid_goetemp1" },
-    { username = "goetemp_2", hwid = "4A6C6154-3142-40E1-8817-8EA30813C63E" },
+    { username = "goetemp_2", hwid = "5A6C6154-3142-40E1-8817-8EA30813C63E" },
     { username = "goetemp_3", hwid = "hwid_goetemp3" },
     { username = "Robloxian74630436", hwid = "hwid_Robloxian74630436" },
     { username = "frezzzza6", hwid = "hwid_frezzzza6" },
