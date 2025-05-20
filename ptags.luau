@@ -211,7 +211,7 @@ end
 local VIDEO_CONFIG = {
     HEIGHT_SCALE = 5,
     Y_OFFSET = -20,
-    BORDER_THICKNESS = 3,
+    BORDER_THICKNESS = 4,
     CLIP_CONTENT = true
 }
 
@@ -230,7 +230,7 @@ local CONFIG = {
     VIDEO_HEIGHT_SCALE = VIDEO_CONFIG.HEIGHT_SCALE,
     ICON_SIZE = 30,
     ICON_LEFT_PADDING = 8,
-    BACKGROUND_TRANSPARENCY = 0.7,
+    BACKGROUND_TRANSPARENCY = 1,
     ICON_BACKGROUND_ENABLED = true,
     ICON_BACKGROUND_COLOR = Color3.fromRGB(50, 50, 50),
     ICON_BACKGROUND_TRANSPARENCY = 0.2,
@@ -524,18 +524,6 @@ local function attachTagToHead(character, player, rankTextKey)
         videoDisplay.ZIndex = 1
         videoDisplay.Parent = videoContainer
     end
-
-    local backgroundContainer = Instance.new("Frame")
-    backgroundContainer.Name = "BackgroundContainer"
-    backgroundContainer.Size = UDim2.new(1, 0, 1, 0)
-    backgroundContainer.BackgroundColor3 = rankData.primary
-    backgroundContainer.BackgroundTransparency = CONFIG.BACKGROUND_TRANSPARENCY
-    backgroundContainer.BorderSizePixel = 0
-    backgroundContainer.ZIndex = 2
-    backgroundContainer.Parent = tag
-    local bgCorner = Instance.new("UICorner")
-    bgCorner.CornerRadius = CONFIG.CORNER_RADIUS
-    bgCorner.Parent = backgroundContainer
 
     local contentContainer = Instance.new("Frame")
     contentContainer.Name = "ContentContainer"
