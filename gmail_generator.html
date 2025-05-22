@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF--8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Gmail Alias Generator Pro 🌠</title>
+    <style>
+        @keyframes stars {
+            0% { background-position: 0 0; }
+            100% { background-position: -10000px 5000px; }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0077ff; }
+            50% { box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #0077ff, 0 0 40px #0055ff; }
+            100% { box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0077ff; }
+        }
+        
+        @keyframes subtleGlow {
+            0%, 100% { text-shadow: 0 0 3px #fff, 0 0 5px #fff, 0 0 7px #00aaff; }
+            50% { text-shadow: 0 0 5px #fff, 0 0 8px #00aaff, 0 0 10px #0077ff; }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0c0c1d; /* Dark blue/purple */
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 3px),
+                radial-gradient(circle at 80% 30%, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0) 2px),
+                radial-gradient(circle at 30% 80%, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0) 2px),
+                radial-gradient(circle at 70% 70%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 3px),
+                radial-gradient(circle at 50% 50%, rgba(100,100,200,0.1) 0%, rgba(100,100,200,0) 60%);
+            background-size: 100px 100px, 80px 80px, 90px 90px, 70px 70px, 100% 100%;
+            animation: stars 200s linear infinite;
+        }
+
+        .container {
+            background: rgba(15, 23, 42, 0.8); /* Dark slate blue, semi-transparent */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 191, 255, 0.3), 0 0 60px rgba(138, 43, 226, 0.2);
+            width: 90%;
+            max-width: 700px;
+            border: 1px solid rgba(0, 191, 255, 0.2);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .container:hover {
+            box-shadow: 0 0 40px rgba(0, 191, 255, 0.5), 0 0 80px rgba(138, 43, 226, 0.3);
+        }
+
+        h1 {
+            color: #9f7aea; /* Light purple */
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px #9f7aea, 0 0 10px #9f7aea, 0 0 15px #c74ae7;
+            animation: subtleGlow 3s infinite alternate;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0aec0; /* Light gray-blue */
+            font-weight: bold;
+        }
+
+        input[type="email"],
+        input[type="number"],
+        select {
+            width: calc(100% - 22px);
+            padding: 12px;
+            background-color: rgba(26, 32, 44, 0.9); /* Darker gray-blue */
+            border: 1px solid #4a5568; /* Medium gray-blue */
+            border-radius: 8px;
+            color: #e2e8f0; /* Lightest gray-blue */
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #63b3ed; /* Light blue */
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
+        }
+        
+        input[type="number"] {
+            width: 80px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .option-card {
+            background-color: rgba(26, 32, 44, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+        }
+        
+        .option-card label {
+            font-weight: normal;
+            color: #cbd5e0;
+        }
+        
+        .radio-group label, .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"],
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            accent-color: #63b3ed;
+            transform: scale(1.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, #63b3ed, #9f7aea); /* Blue to Purple */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            margin-right: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(99, 179, 237, 0.4), 0 0 15px #9f7aea;
+        }
+        
+        button:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        button.secondary {
+            background: #4a5568;
+        }
+        button.secondary:hover {
+             box-shadow: 0 6px 12px rgba(74, 85, 104, 0.4);
+        }
+
+        #outputArea {
+            margin-top: 30px;
+        }
+
+        textarea {
+            width: calc(100% - 24px);
+            min-height: 150px;
+            padding: 12px;
+            background-color: rgba(10, 10, 20, 0.9); /* Very dark, almost black */
+            border: 1px solid #4a5568;
+            border-radius: 8px;
+            color: #a7d8ff; /* Light cyan */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95em;
+            resize: vertical;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #63b3ed;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 0 3px rgba(99, 179, 237, 0.3);
+        }
+
+        .info-message, .error-message {
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .info-message {
+            background-color: rgba(45, 155, 105, 0.2); /* Greenish */
+            color: #86efac;
+            border: 1px solid #2d9b69;
+        }
+
+        .error-message {
+            background-color: rgba(224, 68, 68, 0.2); /* Reddish */
+            color: #fca5a5;
+            border: 1px solid #e04444;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: #63b3ed;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #718096; /* Gray */
+        }
+        footer a {
+            color: #63b3ed;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🌌 Gmail Alias Generator Pro 🌠</h1>
+
+        <div class="input-group">
+            <label for="emailInput">Deine Gmail-Adresse:</label>
+            <input type="email" id="emailInput" placeholder="z.b. dein.name@gmail.com">
+        </div>
+
+        <div class="options-grid">
+            <div class="option-card">
+                <label>Generierungsmodus:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="generationMode" value="singleRandom" checked> Einzelner Zufallsalias</label>
+                    <label><input type="radio" name="generationMode" value="multipleRandom"> Mehrere Zufallsaliase</label>
+                    <label><input type="radio" name="generationMode" value="allSystematic"> Alle Möglichen (systematisch)</label>
+                    <label><input type="radio" name="generationMode" value="systematicPartial"> Systematisch (Anzahl)</label>
+                    <label><input type="radio" name="generationMode" value="fixedDots"> Feste Anzahl Punkte</label>
+                </div>
+            </div>
+
+            <div class="option-card">
+                <div id="countOptions" class="input-group hidden">
+                    <label for="aliasCount">Anzahl zu generieren:</label>
+                    <input type="number" id="aliasCount" value="10" min="1" max="1000">
+                </div>
+                <div id="dotCountOptions" class="input-group hidden">
+                    <label for="dotCount">Anzahl Punkte:</label>
+                    <input type="number" id="dotCount" value="1" min="0">
+                </div>
+                 <div class="checkbox-group">
+                    <label><input type="checkbox" id="avoidDuplicates" checked> Duplikate bei Zufall vermeiden</label>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <button id="generateButton">✨ Aliase Generieren</button>
+            <button id="resetButton" class="secondary">🔄 Zurücksetzen</button>
+        </div>
+
+        <div id="loadingSpinner" class="spinner hidden"></div>
+        <div id="messageArea"></div>
+
+        <div id="outputArea" class="hidden">
+            <label for="generatedAliases">Generierte Aliase:</label>
+            <textarea id="generatedAliases" readonly rows="10"></textarea>
+            <button id="copyButton">📋 Alle Kopieren</button>
+            <div id="copyFeedback" class="info-message hidden"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Ein Tool, um die Punkt-Variationen von Gmail-Adressen zu nutzen.</p>
+    </footer>
+
+    <script>
+        const emailInput = document.getElementById('emailInput');
+        const generationModeRadios = document.querySelectorAll('input[name="generationMode"]');
+        const aliasCountInput = document.getElementById('aliasCount');
+        const dotCountInput = document.getElementById('dotCount');
+        const avoidDuplicatesCheckbox = document.getElementById('avoidDuplicates');
+        const generateButton = document.getElementById('generateButton');
+        const resetButton = document.getElementById('resetButton');
+        const generatedAliasesTextarea = document.getElementById('generatedAliases');
+        const copyButton = document.getElementById('copyButton');
+        const messageArea = document.getElementById('messageArea');
+        const outputArea = document.getElementById('outputArea');
+        const copyFeedback = document.getElementById('copyFeedback');
+        const countOptionsDiv = document.getElementById('countOptions');
+        const dotCountOptionsDiv = document.getElementById('dotCountOptions');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        const MAX_USERNAME_LENGTH_FOR_ALL_ALIASES = 16; // 2^(16-1) = 32768
+        const MAX_ALIASES_TO_DISPLAY_DIRECTLY = 50000; // Soft limit for display
+
+        function showMessage(text, type = 'info') {
+            messageArea.innerHTML = `<div class="${type}-message">${text}</div>`;
+            messageArea.classList.remove('hidden');
+        }
+
+        function clearMessages() {
+            messageArea.innerHTML = '';
+            messageArea.classList.add('hidden');
+        }
+        
+        function showCopyFeedback(message) {
+            copyFeedback.textContent = message;
+            copyFeedback.classList.remove('hidden');
+            setTimeout(() => {
+                copyFeedback.classList.add('hidden');
+            }, 2000);
+        }
+
+        function toggleOptionsVisibility() {
+            const selectedMode = document.querySelector('input[name="generationMode"]:checked').value;
+            countOptionsDiv.classList.add('hidden');
+            dotCountOptionsDiv.classList.add('hidden');
+
+            if (selectedMode === 'multipleRandom' || selectedMode === 'systematicPartial') {
+                countOptionsDiv.classList.remove('hidden');
+            } else if (selectedMode === 'fixedDots') {
+                dotCountOptionsDiv.classList.remove('hidden');
+            }
+        }
+
+        generationModeRadios.forEach(radio => radio.addEventListener('change', toggleOptionsVisibility));
+        
+        // Initial call to set visibility
+        toggleOptionsVisibility();
+
+
+        function validateEmail(email) {
+            if (!email) return "Bitte gib eine Gmail-Adresse ein.";
+            const emailParts = email.split('@');
+            if (emailParts.length !== 2) return "Ungültiges E-Mail-Format.";
+            const domain = emailParts[1].toLowerCase();
+            if (domain !== 'gmail.com' && domain !== 'googlemail.com') {
+                return "Bitte gib eine gültige Gmail- oder Googlemail-Adresse ein.";
+            }
+            if (!emailParts[0]) return "Der Nutzername darf nicht leer sein.";
+            return null; // Valid
+        }
+
+        function getUsernameAndDomain(email) {
+            const parts = email.split('@');
+            return { username: parts[0].replace(/\./g, ''), domain: parts[1] }; // Remove existing dots for canonical username
+        }
+
+        // --- Alias Generation Logic ---
+
+        function generateSingleRandomAlias(username) {
+            if (username.length <= 1) return username;
+            let alias = username[0];
+            for (let i = 1; i < username.length; i++) {
+                if (Math.random() < 0.5) {
+                    alias += '.';
+                }
+                alias += username[i];
+            }
+            return alias;
+        }
+
+        function generateMultipleRandomAliases(username, count, avoidDuplicates) {
+            const aliases = avoidDuplicates ? new Set() : [];
+            const maxAttempts = count * 5; // To avoid infinite loops if not enough unique aliases can be found
+            let attempts = 0;
+
+            while ((avoidDuplicates ? aliases.size : aliases.length) < count && attempts < maxAttempts) {
+                const newAlias = generateSingleRandomAlias(username);
+                if (avoidDuplicates) {
+                    aliases.add(newAlias);
+                } else {
+                    aliases.push(newAlias);
+                }
+                attempts++;
+            }
+            return Array.from(aliases);
+        }
+        
+        async function generateAllSystematicAliases(username) {
+            return new Promise((resolve) => {
+                const n = username.length;
+                if (n === 0) resolve([]);
+                if (n === 1) resolve([username]);
+
+                const results = [];
+                const numPositions = n - 1; // Number of possible dot positions
+                
+                // Warn and limit if username is too long
+                if (numPositions > MAX_USERNAME_LENGTH_FOR_ALL_ALIASES) {
+                     showMessage(`Der Nutzername ist sehr lang (${n} Zeichen). Das Generieren aller ${Math.pow(2, numPositions)} Kombinationen kann den Browser stark belasten oder zum Absturz bringen. Es werden maximal ${MAX_ALIASES_TO_DISPLAY_DIRECTLY} Aliase angezeigt. Fortfahren? <button id="confirmLongGeneration">Ja, fortfahren</button> <button id="cancelLongGeneration">Abbrechen</button>`, 'error');
+                    
+                    document.getElementById('confirmLongGeneration').onclick = () => {
+                        clearMessages();
+                        loadingSpinner.classList.remove('hidden');
+                        setTimeout(() => { // Allow UI to update
+                            resolve(generateSystematicInternal(username, true));
+                        }, 50);
+                    };
+                    document.getElementById('cancelLongGeneration').onclick = () => {
+                        clearMessages();
+                        resolve([]); // Empty array to signify cancellation
+                         loadingSpinner.classList.add('hidden');
+                    };
+                    return; // Don't proceed until user confirms or cancels
+                }
+                
+                loadingSpinner.classList.remove('hidden');
+                setTimeout(() => { // Allow UI to update before heavy computation
+                    resolve(generateSystematicInternal(username, false));
+                }, 50);
+            });
+        }
+
+        function generateSystematicInternal(username, limitOutput) {
+            const n = username.length;
+            const results = [];
+            const numPositions = n - 1;
+            const totalCombinations = Math.pow(2, numPositions);
+            let combinationsToGenerate = totalCombinations;
+
+            if (limitOutput && totalCombinations > MAX_ALIASES_TO_DISPLAY_DIRECTLY) {
+                combinationsToGenerate = MAX_ALIASES_TO_DISPLAY_DIRECTLY;
+                 showMessage(`Es werden nur die ersten ${MAX_ALIASES_TO_DISPLAY_DIRECTLY} von ${totalCombinations} möglichen Aliasen generiert und angezeigt.`, 'info');
+            }
+
+            for (let i = 0; i < combinationsToGenerate; i++) {
+                let currentAlias = username[0];
+                for (let j = 0; j < numPositions; j++) {
+                    // Check j-th bit of i
+                    if ((i >> j) & 1) {
+                        currentAlias += '.';
+                    }
+                    currentAlias += username[j + 1];
+                }
+                results.push(currentAlias);
+                // Consider adding a small delay or chunking for extremely large sets if not using a Web Worker
+                // For now, direct generation up to the limit.
+            }
+            results.sort((a,b) => { // Sort by number of dots, then alphabetically
+                const dotsA = (a.match(/\./g) || []).length;
+                const dotsB = (b.match(/\./g) || []).length;
+                if (dotsA !== dotsB) return dotsA - dotsB;
+                return a.localeCompare(b);
+            });
+            return results;
+        }
+
+
+        async function generateSystematicPartialAliases(username, count) {
+             return new Promise((resolve) => {
+                loadingSpinner.classList.remove('hidden');
+                setTimeout(() => {
+                    const n = username.length;
+                    if (n === 0) resolve([]);
+                    if (n === 1) resolve([username]);
+
+                    const results = [];
+                    const numPositions = n - 1;
+                    const totalPossible = Math.pow(2, numPositions);
+                    const limit = Math.min(count, totalPossible);
+
+                    for (let i = 0; i < limit; i++) {
+                        let currentAlias = username[0];
+                        for (let j = 0; j < numPositions; j++) {
+                            if ((i >> j) & 1) {
+                                currentAlias += '.';
+                            }
+                            currentAlias += username[j + 1];
+                        }
+                        results.push(currentAlias);
+                    }
+                    results.sort((a,b) => {
+                        const dotsA = (a.match(/\./g) || []).length;
+                        const dotsB = (b.match(/\./g) || []).length;
+                        if (dotsA !== dotsB) return dotsA - dotsB;
+                        return a.localeCompare(b);
+                    });
+                    resolve(results);
+                }, 50);
+            });
+        }
+        
+        async function generateFixedDotAliases(username, dotCount) {
+            return new Promise((resolve) => {
+                loadingSpinner.classList.remove('hidden');
+                setTimeout(() => {
+                    const n = username.length;
+                    if (dotCount < 0 || dotCount >= n) {
+                        showMessage("Anzahl der Punkte muss zwischen 0 und " + (n-1) + " liegen.", "error");
+                        resolve([]);
+                        return;
+                    }
+                    if (n <= 1 && dotCount > 0) {
+                        resolve([]); return;
+                    }
+                    if (n > 0 && dotCount === 0) {
+                        resolve([username]); return;
+                    }
+
+
+                    const results = [];
+                    const positions = n - 1; // Possible places for dots
+
+                    // Helper function for combinations
+                    function findCombinations(offset, k, currentCombination) {
+                        if (k === 0) {
+                            let alias = username[0];
+                            let dotIndices = [...currentCombination].sort((a,b)=>a-b);
+                            let currentDot = 0;
+                            for(let charIdx = 1; charIdx < n; charIdx++){
+                                if(currentDot < dotIndices.length && (charIdx-1) === dotIndices[currentDot]){
+                                    alias += ".";
+                                    currentDot++;
+                                }
+                                alias += username[charIdx];
+                            }
+                            results.push(alias);
+                            return;
+                        }
+                        for (let i = offset; i <= positions - k; ++i) {
+                            currentCombination.push(i);
+                            findCombinations(i + 1, k - 1, currentCombination);
+                            currentCombination.pop();
+                        }
+                    }
+
+                    findCombinations(0, dotCount, []);
+                    resolve(results.sort());
+                }, 50);
+            });
+        }
+
+
+        // --- Event Handlers ---
+        generateButton.addEventListener('click', async () => {
+            clearMessages();
+            outputArea.classList.add('hidden');
+            generatedAliasesTextarea.value = '';
+            loadingSpinner.classList.remove('hidden'); // Show spinner early
+
+            const email = emailInput.value.trim();
+            const validationError = validateEmail(email);
+            if (validationError) {
+                showMessage(validationError, 'error');
+                loadingSpinner.classList.add('hidden');
+                return;
+            }
+
+            const { username, domain } = getUsernameAndDomain(email);
+            if (username.length === 0) {
+                 showMessage("Der Nutzername (Teil vor @) darf nicht leer sein.", 'error');
+                 loadingSpinner.classList.add('hidden');
+                 return;
+            }
+
+
+            const selectedMode = document.querySelector('input[name="generationMode"]:checked').value;
+            let aliases = [];
+            let count = parseInt(aliasCountInput.value, 10);
+            let dots = parseInt(dotCountInput.value, 10);
+
+            try {
+                switch (selectedMode) {
+                    case 'singleRandom':
+                        aliases = [generateSingleRandomAlias(username)];
+                        break;
+                    case 'multipleRandom':
+                        if (isNaN(count) || count < 1) count = 10;
+                         aliasCountInput.value = count; // Sanitize
+                        aliases = generateMultipleRandomAliases(username, count, avoidDuplicatesCheckbox.checked);
+                        break;
+                    case 'allSystematic':
+                        // This function is now async and handles its own spinner logic for confirmation
+                        aliases = await generateAllSystematicAliases(username);
+                        break;
+                    case 'systematicPartial':
+                        if (isNaN(count) || count < 1) count = 10;
+                        aliasCountInput.value = count; // Sanitize
+                        aliases = await generateSystematicPartialAliases(username, count);
+                        break;
+                    case 'fixedDots':
+                        if (isNaN(dots) || dots < 0) dots = 1;
+                        dotCountInput.value = dots; // Sanitize
+                        if (dots >= username.length && username.length > 0) {
+                            showMessage(`Anzahl der Punkte (${dots}) kann nicht größer oder gleich der Anzahl der möglichen Positionen (${username.length -1}) sein.`, 'error');
+                            aliases = [];
+                            break;
+                        }
+                        aliases = await generateFixedDotAliases(username, dots);
+                        break;
+                }
+            } catch (e) {
+                console.error("Error during generation:", e);
+                showMessage("Ein Fehler ist bei der Generierung aufgetreten: " + e.message, "error");
+                loadingSpinner.classList.add('hidden');
+                return;
+            }
+            
+            // Final processing after async operations might have completed
+            // (or if generateAllSystematic was cancelled, aliases will be empty)
+            if (aliases && aliases.length > 0) {
+                generatedAliasesTextarea.value = aliases.map(a => `${a}@${domain}`).join('\n');
+                outputArea.classList.remove('hidden');
+                showMessage(`Erfolgreich ${aliases.length} Alias(e) generiert.`, 'info');
+            } else if (!messageArea.innerHTML.includes('error-message')) { // Don't overwrite existing error/confirmation
+                 if (selectedMode !== 'allSystematic' || !document.getElementById('confirmLongGeneration')) { // Avoid message if confirmation is pending
+                    showMessage('Keine Aliase generiert. Überprüfe die Einstellungen (z.B. 0 Punkte bei "Feste Anzahl Punkte" für einen langen Namen, oder der Nutzername ist zu kurz).', 'info');
+                 }
+            }
+            loadingSpinner.classList.add('hidden');
+        });
+
+        resetButton.addEventListener('click', () => {
+            emailInput.value = '';
+            generationModeRadios[0].checked = true;
+            aliasCountInput.value = '10';
+            dotCountInput.value = '1';
+            avoidDuplicatesCheckbox.checked = true;
+            generatedAliasesTextarea.value = '';
+            outputArea.classList.add('hidden');
+            clearMessages();
+            toggleOptionsVisibility();
+            loadingSpinner.classList.add('hidden');
+        });
+
+        copyButton.addEventListener('click', () => {
+            if (generatedAliasesTextarea.value) {
+                navigator.clipboard.writeText(generatedAliasesTextarea.value)
+                    .then(() => showCopyFeedback('Aliase in die Zwischenablage kopiert!'))
+                    .catch(err => showCopyFeedback('Fehler beim Kopieren: ' + err));
+            } else {
+                showCopyFeedback('Nichts zu kopieren.');
+            }
+        });
+
+    </script>
+</body>
+</html>
