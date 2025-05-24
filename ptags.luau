@@ -61,20 +61,34 @@ local RankData = {
         localImageAssetId = "",
         emoji = "🛡️",
     },
-    -- NEUE ROLLE FÜR TAMI_MOGLI
     ["SENTINEL MOMMY"] = {
         primary = Color3.fromRGB(255, 255, 255), -- Weiß (für den Übergang)
         accent = Color3.fromRGB(255, 105, 180), -- Hot Pink (ein kräftiges "Mommy Pink")
         AnimateName = false, JumpLetters = false, GlitchName = false,
         UseVideo = true,
         videoUrl = "https://github.com/Entity303GB/Scripts/raw/refs/heads/main/input_video_Rosa_smooth%20(1).mp4",
-        localVideoFileName = "tami_mogli_video.mp4", -- Eindeutiger lokaler Dateiname
+        localVideoFileName = "tami_mogli_video.mp4",
         localVideoAssetId = "",
         UseImage = true,
         imageUrl = "https://raw.githubusercontent.com/Entity303GB/Scripts/refs/heads/main/bow.png",
-        localFileName = "tami_mogli_icon.png", -- Eindeutiger lokaler Dateiname
+        localFileName = "tami_mogli_icon.png",
         localImageAssetId = "",
-        emoji = nil, -- Kein Emoji wie gewünscht
+        emoji = nil,
+    },
+    -- NEUE ROLLE FÜR idkanynameformyself9
+    ["Sentinel Nightmare"] = {
+        primary = Color3.fromRGB(50, 0, 75), -- Ein dunkles Lila
+        accent = Color3.fromRGB(120, 81, 169), -- Ein helleres, passendes Lila (Amethyst)
+        AnimateName = false, JumpLetters = false, GlitchName = false,
+        UseVideo = true,
+        videoUrl = "https://github.com/Entity303GB/Scripts/raw/refs/heads/main/input_video_Lila_smooth.mp4",
+        localVideoFileName = "sentinel_nightmare_video.mp4", -- Eindeutiger lokaler Dateiname
+        localVideoAssetId = "",
+        UseImage = false, -- Da Emoji vorhanden und kein Bild gegeben
+        imageUrl = "URL_ZUM_NIGHTMARE_ICON.png", -- Placeholder, falls UseImage true wäre
+        localFileName = "sentinel_nightmare_icon.png", -- Eindeutiger lokaler Dateiname
+        localImageAssetId = "",
+        emoji = "💀", -- Totenkopf Emoji
     }
 }
 -- #####################################################################
@@ -105,13 +119,20 @@ local ROLE_DEFINITIONS = {
         },
         rankDataKey = "SENTINEL SUPPORTER"
     },
-    -- ZUWEISUNG FÜR TAMI_MOGLI
     {
-        roleNameForLogging = "Mommy", -- Ein Name für die Logs, kann beliebig sein
+        roleNameForLogging = "Mommy",
         allowedPlayers = {
-            "Tami_Mogli" -- Der genaue Benutzername
+            "Tami_Mogli"
         },
-        rankDataKey = "SENTINEL MOMMY" -- Muss mit dem Schlüssel in RankData übereinstimmen
+        rankDataKey = "SENTINEL MOMMY"
+    },
+    -- ZUWEISUNG FÜR idkanynameformyself9
+    {
+        roleNameForLogging = "Nightmare", -- Ein Name für die Logs
+        allowedPlayers = {
+            "idkanynameformyself9" -- Der genaue Benutzername
+        },
+        rankDataKey = "Sentinel Nightmare" -- Muss mit dem Schlüssel in RankData übereinstimmen
     }
 }
 
