@@ -6,6 +6,8 @@ end
 Sync v2.7
 ]]
 
+local Codeless = true -- Set to true to bypass key system
+
 if getgenv().SyncExecuted then
     local localplr = game.Players.LocalPlayer
     local gui = localplr:WaitForChild("PlayerGui")
@@ -77,7 +79,7 @@ end
 
 getgenv().SyncExecuted = true
 
-local DevMode = true
+local DevMode = false
 local ForcePCMode = false
 local UserTier = "Free"
 
@@ -173,6 +175,14 @@ function notify.new(message, duration, notifType)
             screen.DisplayOrder = 2147483647
             screen.Parent = PlayerGui
         end
+        
+        local container = Instance.new("Frame")
+        container.Name = "Notification"
+        container.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+        container.BorderSizePixel = 0
+        container.Size = UDim2.new(0, 340, 0, 70)
+        container.Position = UDim2.new(1, 360, 0, notify.yoffset)
+        container.Parent = screen
         
         local container = Instance.new("Frame")
         container.Name = "Notification"
@@ -683,9 +693,12 @@ local function anim(obj, time, props, style)
     return TweenService:Create(obj, TweenInfo.new(time, style, Enum.EasingDirection.Out), props)
 end
 
-local status = checkstatus()
+local status = nil
+if not Codeless then
+    status = checkstatus()
+end
 
-if DevMode then
+if DevMode or Codeless then
     UserTier = "Premium"
 elseif status then
     if status.t == 1 or status.s ~= 1 then
