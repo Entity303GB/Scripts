@@ -3,7 +3,7 @@ if not game:IsLoaded() then
 end
 
 --[[
-Sync v2.7
+Sync v2.8
 ]]
 
 if getgenv().SyncExecuted then
@@ -94,7 +94,7 @@ local CoreGui = game:GetService("CoreGui")
 local IsMobile = (UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled) and not ForcePCMode
 
 local Config = {
-    ServerURL = "https://baskets-comments-favorite-news.trycloudflare.com",
+    ServerURL = "https://cubic-jets-crown-assembled.trycloudflare.com",
     CommandPrefix = ";",
     CommandBarKey = Enum.KeyCode.F6,
     MinimizeDelay = 30
