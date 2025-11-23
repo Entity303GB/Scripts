@@ -77,7 +77,7 @@ end
 
 getgenv().SyncExecuted = true
 
-local DevMode = false
+local DevMode = true
 local ForcePCMode = false
 local UserTier = "Free"
 
