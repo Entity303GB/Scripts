@@ -6,7 +6,7 @@ end
 Sync v2.7
 ]]
 
-local Codeless = false -- Set to true to bypass key system
+local Codeless = true -- Set to true to bypass key system
 local KeyCode = "SYNC_DEV" -- The code to enter
 
 if getgenv().SyncExecuted then
@@ -3106,303 +3106,306 @@ end
 
 ---------- NEW USER PATH (VERIFICATION) ----------
 
-anim(container, 0.8, {Position = UDim2.new(0, centerx - (txtwidth + 65)/2, 0, 30)}):Play()
-task.wait(0.15)
-anim(ball, 0.4, {BackgroundTransparency = 0}):Play()
-anim(island, 0.4, {BackgroundTransparency = 0}):Play()
-anim(welcome, 0.4, {TextTransparency = 0}):Play()
-anim(pfp, 0.4, {ImageTransparency = 0}):Play()
+if not Codeless then
+    -- Only show verification if NOT codeless
+    anim(container, 0.8, {Position = UDim2.new(0, centerx - (txtwidth + 65)/2, 0, 30)}):Play()
+    task.wait(0.15)
+    anim(ball, 0.4, {BackgroundTransparency = 0}):Play()
+    anim(island, 0.4, {BackgroundTransparency = 0}):Play()
+    anim(welcome, 0.4, {TextTransparency = 0}):Play()
+    anim(pfp, 0.4, {ImageTransparency = 0}):Play()
 
-task.wait(2)
-
-anim(welcome, 0.3, {TextTransparency = 1}, Enum.EasingStyle.Sine):Play()
-anim(pfp, 0.3, {ImageTransparency = 1}, Enum.EasingStyle.Sine):Play()
-
-task.wait(0.3)
-
-local shrink = anim(island, 0.6, {Size = UDim2.new(0, 55, 0, 55), Position = UDim2.new(0, 0, 0, 0)})
-local fade = anim(island, 0.3, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
-shrink:Play()
-task.wait(0.3)
-fade:Play()
-shrink.Completed:Wait()
-
-island:Destroy()
-welcome:Destroy()
-
-local move = anim(container, 0.7, {Position = UDim2.new(0, centerx - 27.5, 0, centery - 27.5)})
-move:Play()
-move.Completed:Wait()
-
-local mainw = 600
-local mainh = 400
-
-local expand = anim(ball, 0.9, {Size = UDim2.new(0, mainw, 0, mainh), Position = UDim2.new(0, -mainw/2 + 27.5, 0, -mainh/2 + 27.5)})
-local roundcorner = anim(ballcorner, 0.9, {CornerRadius = UDim.new(0, 22)})
-expand:Play()
-roundcorner:Play()
-expand.Completed:Wait()
-
-pfp:Destroy()
-container.Size = UDim2.new(0, mainw, 0, mainh)
-container.Position = UDim2.new(0, centerx - mainw/2, 0, centery - mainh/2)
-ball.Size = UDim2.new(1, 0, 1, 0)
-ball.Position = UDim2.new(0, 0, 0, 0)
-
-local title = Instance.new("TextLabel")
-title.BackgroundTransparency = 1
-title.Size = UDim2.new(0, 200, 0, 30)
-title.Position = UDim2.new(0, 25, 0, 25)
-title.Text = "Sync"
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextSize = 26
-title.Font = Enum.Font.GothamBold
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.TextTransparency = 1
-title.Parent = ball
-
-local sep = Instance.new("Frame")
-sep.BackgroundColor3 = Color3.fromRGB(150, 100, 255)
-sep.BorderSizePixel = 0
-sep.Size = UDim2.new(0, 250, 0, 2)
-sep.Position = UDim2.new(0, 25, 0, 65)
-sep.BackgroundTransparency = 1
-sep.Parent = ball
-
-local msg = Instance.new("TextLabel")
-msg.BackgroundTransparency = 1
-msg.Size = UDim2.new(0, 250, 0, 70)
-msg.Position = UDim2.new(0, 25, 0, 80)
-msg.Text = "Greetings " .. Player.DisplayName .. ", it seems like it's your first time using our script. Please read the instructions below."
-msg.TextColor3 = Color3.fromRGB(200, 200, 200)
-msg.TextSize = 14
-msg.Font = Enum.Font.Gotham
-msg.TextXAlignment = Enum.TextXAlignment.Left
-msg.TextYAlignment = Enum.TextYAlignment.Top
-msg.TextWrapped = true
-msg.TextTransparency = 1
-msg.Parent = ball
-
-local codebox = Instance.new("Frame")
-codebox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-codebox.Size = UDim2.new(0, 280, 0, 110)
-codebox.Position = UDim2.new(0, 295, 0, 25)
-codebox.BackgroundTransparency = 1
-codebox.Parent = ball
-
-Instance.new("UICorner", codebox).CornerRadius = UDim.new(0, 15)
-
-local codetitle = Instance.new("TextLabel")
-codetitle.BackgroundTransparency = 1
-codetitle.Size = UDim2.new(1, -20, 0, 20)
-codetitle.Position = UDim2.new(0, 10, 0, 10)
-codetitle.Text = "YOUR CODE"
-codetitle.TextColor3 = Color3.fromRGB(180, 180, 180)
-codetitle.TextSize = 12
-codetitle.Font = Enum.Font.GothamMedium
-codetitle.TextXAlignment = Enum.TextXAlignment.Left
-codetitle.TextTransparency = 1
-codetitle.Parent = codebox
-
-local codewarning = Instance.new("TextLabel")
-codewarning.BackgroundTransparency = 1
-codewarning.Size = UDim2.new(1, -20, 0, 15)
-codewarning.Position = UDim2.new(0, 10, 0, 28)
-codewarning.Text = "dont share this with anyone."
-codewarning.TextColor3 = Color3.fromRGB(140, 140, 140)
-codewarning.TextSize = 10
-codewarning.Font = Enum.Font.Gotham
-codewarning.TextXAlignment = Enum.TextXAlignment.Left
-codewarning.TextTransparency = 1
-codewarning.Parent = codebox
-
-local codefields = Instance.new("Frame")
-codefields.BackgroundTransparency = 1
-codefields.Size = UDim2.new(1, -20, 0, 50)
-codefields.Position = UDim2.new(0, 10, 0, 50)
-codefields.Parent = codebox
-
-local fieldlayout = Instance.new("UIListLayout")
-fieldlayout.FillDirection = Enum.FillDirection.Horizontal
-fieldlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-fieldlayout.VerticalAlignment = Enum.VerticalAlignment.Center
-fieldlayout.Padding = UDim.new(0, 8)
-fieldlayout.Parent = codefields
-
-local fields = {}
-for i = 1, 5 do
-    local field = Instance.new("TextLabel")
-    field.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    field.Size = UDim2.new(0, 42, 0, 50)
-    field.Text = ""
-    field.TextColor3 = Color3.fromRGB(150, 150, 150)
-    field.TextSize = 20
-    field.Font = Enum.Font.GothamBold
-    field.BackgroundTransparency = 1
-    field.TextTransparency = 1
-    field.Parent = codefields
-    
-    Instance.new("UICorner", field).CornerRadius = UDim.new(0, 12)
-    
-    table.insert(fields, field)
-end
-
-local guide = Instance.new("Frame")
-guide.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-guide.Size = UDim2.new(0, 550, 0, 220)
-guide.Position = UDim2.new(0, 25, 0, 160)
-guide.BackgroundTransparency = 1
-guide.Parent = ball
-
-Instance.new("UICorner", guide).CornerRadius = UDim.new(0, 15)
-
-local htitle = Instance.new("TextLabel")
-htitle.BackgroundTransparency = 1
-htitle.Size = UDim2.new(1, -20, 0, 25)
-htitle.Position = UDim2.new(0, 15, 0, 15)
-htitle.Text = "How to verify"
-htitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-htitle.TextSize = 19
-htitle.Font = Enum.Font.GothamBold
-htitle.TextXAlignment = Enum.TextXAlignment.Left
-htitle.TextTransparency = 1
-htitle.Parent = guide
-
-local steps = Instance.new("TextLabel")
-steps.BackgroundTransparency = 1
-steps.Size = UDim2.new(1, -30, 0, 120)
-steps.Position = UDim2.new(0, 15, 0, 45)
-steps.TextColor3 = Color3.fromRGB(200, 200, 200)
-steps.TextSize = 14
-steps.Font = Enum.Font.Gotham
-steps.TextXAlignment = Enum.TextXAlignment.Left
-steps.TextYAlignment = Enum.TextYAlignment.Top
-steps.TextWrapped = true
-steps.RichText = true
-steps.TextTransparency = 1
-steps.Parent = guide
-
-local btn = Instance.new("TextButton")
-btn.BackgroundColor3 = Color3.fromRGB(150, 100, 255)
-btn.Size = UDim2.new(0, 160, 0, 45)
-btn.Position = UDim2.new(0.5, -80, 1, -60)
-btn.Text = "Join Discord"
-btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-btn.TextSize = 15
-btn.Font = Enum.Font.GothamBold
-btn.AutoButtonColor = false
-btn.BackgroundTransparency = 1
-btn.Parent = guide
-
-Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 14)
-
-local clicking = false
-
-btn.MouseButton1Click:Connect(function()
-    if clicking then return end
-    clicking = true
-    
-    pcall(function()
-        setclipboard("discord.gg/yourlink")
-    end)
-    
-    btn.Text = "Copied!"
-    anim(btn, 0.2, {BackgroundColor3 = Color3.fromRGB(140, 100, 255)}):Play()
-    
     task.wait(2)
-    
+
+    anim(welcome, 0.3, {TextTransparency = 1}, Enum.EasingStyle.Sine):Play()
+    anim(pfp, 0.3, {ImageTransparency = 1}, Enum.EasingStyle.Sine):Play()
+
+    task.wait(0.3)
+
+    local shrink = anim(island, 0.6, {Size = UDim2.new(0, 55, 0, 55), Position = UDim2.new(0, 0, 0, 0)})
+    local fade = anim(island, 0.3, {BackgroundTransparency = 1}, Enum.EasingStyle.Sine)
+    shrink:Play()
+    task.wait(0.3)
+    fade:Play()
+    shrink.Completed:Wait()
+
+    island:Destroy()
+    welcome:Destroy()
+
+    local move = anim(container, 0.7, {Position = UDim2.new(0, centerx - 27.5, 0, centery - 27.5)})
+    move:Play()
+    move.Completed:Wait()
+
+    local mainw = 600
+    local mainh = 400
+
+    local expand = anim(ball, 0.9, {Size = UDim2.new(0, mainw, 0, mainh), Position = UDim2.new(0, -mainw/2 + 27.5, 0, -mainh/2 + 27.5)})
+    local roundcorner = anim(ballcorner, 0.9, {CornerRadius = UDim.new(0, 22)})
+    expand:Play()
+    roundcorner:Play()
+    expand.Completed:Wait()
+
+    pfp:Destroy()
+    container.Size = UDim2.new(0, mainw, 0, mainh)
+    container.Position = UDim2.new(0, centerx - mainw/2, 0, centery - mainh/2)
+    ball.Size = UDim2.new(1, 0, 1, 0)
+    ball.Position = UDim2.new(0, 0, 0, 0)
+
+    local title = Instance.new("TextLabel")
+    title.BackgroundTransparency = 1
+    title.Size = UDim2.new(0, 200, 0, 30)
+    title.Position = UDim2.new(0, 25, 0, 25)
+    title.Text = "Sync"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 26
+    title.Font = Enum.Font.GothamBold
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.TextTransparency = 1
+    title.Parent = ball
+
+    local sep = Instance.new("Frame")
+    sep.BackgroundColor3 = Color3.fromRGB(150, 100, 255)
+    sep.BorderSizePixel = 0
+    sep.Size = UDim2.new(0, 250, 0, 2)
+    sep.Position = UDim2.new(0, 25, 0, 65)
+    sep.BackgroundTransparency = 1
+    sep.Parent = ball
+
+    local msg = Instance.new("TextLabel")
+    msg.BackgroundTransparency = 1
+    msg.Size = UDim2.new(0, 250, 0, 70)
+    msg.Position = UDim2.new(0, 25, 0, 80)
+    msg.Text = "Greetings " .. Player.DisplayName .. ", it seems like it's your first time using our script. Please read the instructions below."
+    msg.TextColor3 = Color3.fromRGB(200, 200, 200)
+    msg.TextSize = 14
+    msg.Font = Enum.Font.Gotham
+    msg.TextXAlignment = Enum.TextXAlignment.Left
+    msg.TextYAlignment = Enum.TextYAlignment.Top
+    msg.TextWrapped = true
+    msg.TextTransparency = 1
+    msg.Parent = ball
+
+    local codebox = Instance.new("Frame")
+    codebox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    codebox.Size = UDim2.new(0, 280, 0, 110)
+    codebox.Position = UDim2.new(0, 295, 0, 25)
+    codebox.BackgroundTransparency = 1
+    codebox.Parent = ball
+
+    Instance.new("UICorner", codebox).CornerRadius = UDim.new(0, 15)
+
+    local codetitle = Instance.new("TextLabel")
+    codetitle.BackgroundTransparency = 1
+    codetitle.Size = UDim2.new(1, -20, 0, 20)
+    codetitle.Position = UDim2.new(0, 10, 0, 10)
+    codetitle.Text = "YOUR CODE"
+    codetitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+    codetitle.TextSize = 12
+    codetitle.Font = Enum.Font.GothamMedium
+    codetitle.TextXAlignment = Enum.TextXAlignment.Left
+    codetitle.TextTransparency = 1
+    codetitle.Parent = codebox
+
+    local codewarning = Instance.new("TextLabel")
+    codewarning.BackgroundTransparency = 1
+    codewarning.Size = UDim2.new(1, -20, 0, 15)
+    codewarning.Position = UDim2.new(0, 10, 0, 28)
+    codewarning.Text = "dont share this with anyone."
+    codewarning.TextColor3 = Color3.fromRGB(140, 140, 140)
+    codewarning.TextSize = 10
+    codewarning.Font = Enum.Font.Gotham
+    codewarning.TextXAlignment = Enum.TextXAlignment.Left
+    codewarning.TextTransparency = 1
+    codewarning.Parent = codebox
+
+    local codefields = Instance.new("Frame")
+    codefields.BackgroundTransparency = 1
+    codefields.Size = UDim2.new(1, -20, 0, 50)
+    codefields.Position = UDim2.new(0, 10, 0, 50)
+    codefields.Parent = codebox
+
+    local fieldlayout = Instance.new("UIListLayout")
+    fieldlayout.FillDirection = Enum.FillDirection.Horizontal
+    fieldlayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    fieldlayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    fieldlayout.Padding = UDim.new(0, 8)
+    fieldlayout.Parent = codefields
+
+    local fields = {}
+    for i = 1, 5 do
+        local field = Instance.new("TextLabel")
+        field.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+        field.Size = UDim2.new(0, 42, 0, 50)
+        field.Text = ""
+        field.TextColor3 = Color3.fromRGB(150, 150, 150)
+        field.TextSize = 20
+        field.Font = Enum.Font.GothamBold
+        field.BackgroundTransparency = 1
+        field.TextTransparency = 1
+        field.Parent = codefields
+        
+        Instance.new("UICorner", field).CornerRadius = UDim.new(0, 12)
+        
+        table.insert(fields, field)
+    end
+
+    local guide = Instance.new("Frame")
+    guide.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    guide.Size = UDim2.new(0, 550, 0, 220)
+    guide.Position = UDim2.new(0, 25, 0, 160)
+    guide.BackgroundTransparency = 1
+    guide.Parent = ball
+
+    Instance.new("UICorner", guide).CornerRadius = UDim.new(0, 15)
+
+    local htitle = Instance.new("TextLabel")
+    htitle.BackgroundTransparency = 1
+    htitle.Size = UDim2.new(1, -20, 0, 25)
+    htitle.Position = UDim2.new(0, 15, 0, 15)
+    htitle.Text = "How to verify"
+    htitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    htitle.TextSize = 19
+    htitle.Font = Enum.Font.GothamBold
+    htitle.TextXAlignment = Enum.TextXAlignment.Left
+    htitle.TextTransparency = 1
+    htitle.Parent = guide
+
+    local steps = Instance.new("TextLabel")
+    steps.BackgroundTransparency = 1
+    steps.Size = UDim2.new(1, -30, 0, 120)
+    steps.Position = UDim2.new(0, 15, 0, 45)
+    steps.TextColor3 = Color3.fromRGB(200, 200, 200)
+    steps.TextSize = 14
+    steps.Font = Enum.Font.Gotham
+    steps.TextXAlignment = Enum.TextXAlignment.Left
+    steps.TextYAlignment = Enum.TextYAlignment.Top
+    steps.TextWrapped = true
+    steps.RichText = true
+    steps.TextTransparency = 1
+    steps.Parent = guide
+
+    local btn = Instance.new("TextButton")
+    btn.BackgroundColor3 = Color3.fromRGB(150, 100, 255)
+    btn.Size = UDim2.new(0, 160, 0, 45)
+    btn.Position = UDim2.new(0.5, -80, 1, -60)
     btn.Text = "Join Discord"
-    anim(btn, 0.3, {BackgroundColor3 = Color3.fromRGB(150, 100, 255)}):Play()
-    
-    clicking = false
-end)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 15
+    btn.Font = Enum.Font.GothamBold
+    btn.AutoButtonColor = false
+    btn.BackgroundTransparency = 1
+    btn.Parent = guide
 
-btn.MouseEnter:Connect(function()
-    anim(btn, 0.3, {BackgroundColor3 = Color3.fromRGB(170, 120, 255)}):Play()
-end)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 14)
 
-btn.MouseLeave:Connect(function()
-    if not clicking then
-        anim(btn, 0.3, {BackgroundColor3 = Color3.fromRGB(150, 100, 255)}):Play()
-    end
-end)
+    local clicking = false
 
-local function updateinstructions(code)
-    local codetext = code and code ~= "" and code or ""
-    local instruction = '<font color="rgb(200,200,200)">Join our Discord server and navigate to the </font><font color="rgb(88,101,242)" face="GothamMedium">#verify</font><font color="rgb(200,200,200)"> channel.\n\nType </font><font face="RobotoMono" color="rgb(180,180,180)">.link ' .. codetext .. '</font><font color="rgb(200,200,200)"> in the channel.\n\nOur bot will DM you. Press confirm to verify your account.\n\nThat\'s it. Enjoy!</font>'
-    steps.Text = instruction
-end
-
-local function animcode(code)
-    currentcode = code
-    updateinstructions(code)
-    
-    for i, field in ipairs(fields) do
-        task.wait(0.05)
-        local char = code:sub(i, i) or ""
-        field.Text = char
+    btn.MouseButton1Click:Connect(function()
+        if clicking then return end
+        clicking = true
         
-        local origsize = field.Size
-        field.Size = UDim2.new(0, 0, 0, 0)
-        
-        anim(field, 0.4, {Size = origsize}, Enum.EasingStyle.Back):Play()
-        
-        local pulse = anim(field, 0.2, {BackgroundColor3 = Color3.fromRGB(150, 100, 255)})
-        pulse:Play()
-        pulse.Completed:Connect(function()
-            anim(field, 0.3, {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
+        pcall(function()
+            setclipboard("discord.gg/yourlink")
         end)
-    end
-end
-
-local function fetchcode()
-    local success, result = pcall(function()
-        local un = Player.Name
-        local hw = game:GetService("RbxAnalyticsService"):GetClientId()
-        local ts = tostring(os.time())
         
-        local pl = "register:" .. un .. "+" .. hw .. "+" .. ts
-        local en = enc(pl)
-        local url = Config.ServerURL .. "/api?d=" .. HttpService:UrlEncode(en)
+        btn.Text = "Copied!"
+        anim(btn, 0.2, {BackgroundColor3 = Color3.fromRGB(140, 100, 255)}):Play()
         
-        local res = game:HttpGet(url, true)
-        local data = HttpService:JSONDecode(res)
+        task.wait(2)
         
-        if data.ok and data.e then
-            return dec(data.e)
-        end
-        return nil
+        btn.Text = "Join Discord"
+        anim(btn, 0.3, {BackgroundColor3 = Color3.fromRGB(150, 100, 255)}):Play()
+        
+        clicking = false
     end)
-    
-    return success and result or nil
-end
 
-task.wait(0.2)
-anim(title, 0.5, {TextTransparency = 0}):Play()
-task.wait(0.1)
-anim(sep, 0.5, {BackgroundTransparency = 0}):Play()
-task.wait(0.1)
-anim(msg, 0.5, {TextTransparency = 0}):Play()
-task.wait(0.1)
-anim(codebox, 0.5, {BackgroundTransparency = 0}):Play()
-anim(codetitle, 0.5, {TextTransparency = 0}):Play()
-anim(codewarning, 0.5, {TextTransparency = 0}):Play()
-for _, field in ipairs(codefields:GetChildren()) do
-    if field:IsA("TextLabel") then
-        anim(field, 0.5, {BackgroundTransparency = 0, TextTransparency = 0}):Play()
-    end
-end
-task.wait(0.1)
-anim(guide, 0.5, {BackgroundTransparency = 0}):Play()
-anim(htitle, 0.5, {TextTransparency = 0}):Play()
-updateinstructions()
-anim(steps, 0.5, {TextTransparency = 0}):Play()
-anim(btn, 0.5, {BackgroundTransparency = 0}):Play()
+    btn.MouseEnter:Connect(function()
+        anim(btn, 0.3, {BackgroundColor3 = Color3.fromRGB(170, 120, 255)}):Play()
+    end)
 
-task.spawn(function()
-    task.wait(0.5)
-    local code = fetchcode()
-    if code then
-        animcode(code)
+    btn.MouseLeave:Connect(function()
+        if not clicking then
+            anim(btn, 0.3, {BackgroundColor3 = Color3.fromRGB(150, 100, 255)}):Play()
+        end
+    end)
+
+    local function updateinstructions(code)
+        local codetext = code and code ~= "" and code or ""
+        local instruction = '<font color="rgb(200,200,200)">Join our Discord server and navigate to the </font><font color="rgb(88,101,242)" face="GothamMedium">#verify</font><font color="rgb(200,200,200)"> channel.\n\nType </font><font face="RobotoMono" color="rgb(180,180,180)">.link ' .. codetext .. '</font><font color="rgb(200,200,200)"> in the channel.\n\nOur bot will DM you. Press confirm to verify your account.\n\nThat\'s it. Enjoy!</font>'
+        steps.Text = instruction
     end
-end)
+
+    local function animcode(code)
+        currentcode = code
+        updateinstructions(code)
+        
+        for i, field in ipairs(fields) do
+            task.wait(0.05)
+            local char = code:sub(i, i) or ""
+            field.Text = char
+            
+            local origsize = field.Size
+            field.Size = UDim2.new(0, 0, 0, 0)
+            
+            anim(field, 0.4, {Size = origsize}, Enum.EasingStyle.Back):Play()
+            
+            local pulse = anim(field, 0.2, {BackgroundColor3 = Color3.fromRGB(150, 100, 255)})
+            pulse:Play()
+            pulse.Completed:Connect(function()
+                anim(field, 0.3, {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play()
+            end)
+        end
+    end
+
+    local function fetchcode()
+        local success, result = pcall(function()
+            local un = Player.Name
+            local hw = game:GetService("RbxAnalyticsService"):GetClientId()
+            local ts = tostring(os.time())
+            
+            local pl = "register:" .. un .. "+" .. hw .. "+" .. ts
+            local en = enc(pl)
+            local url = Config.ServerURL .. "/api?d=" .. HttpService:UrlEncode(en)
+            
+            local res = game:HttpGet(url, true)
+            local data = HttpService:JSONDecode(res)
+            
+            if data.ok and data.e then
+                return dec(data.e)
+            end
+            return nil
+        end)
+        
+        return success and result or nil
+    end
+
+    task.wait(0.2)
+    anim(title, 0.5, {TextTransparency = 0}):Play()
+    task.wait(0.1)
+    anim(sep, 0.5, {BackgroundTransparency = 0}):Play()
+    task.wait(0.1)
+    anim(msg, 0.5, {TextTransparency = 0}):Play()
+    task.wait(0.1)
+    anim(codebox, 0.5, {BackgroundTransparency = 0}):Play()
+    anim(codetitle, 0.5, {TextTransparency = 0}):Play()
+    anim(codewarning, 0.5, {TextTransparency = 0}):Play()
+    for _, field in ipairs(codefields:GetChildren()) do
+        if field:IsA("TextLabel") then
+            anim(field, 0.5, {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+        end
+    end
+    task.wait(0.1)
+    anim(guide, 0.5, {BackgroundTransparency = 0}):Play()
+    anim(htitle, 0.5, {TextTransparency = 0}):Play()
+    updateinstructions()
+    anim(steps, 0.5, {TextTransparency = 0}):Play()
+    anim(btn, 0.5, {BackgroundTransparency = 0}):Play()
+
+    task.spawn(function()
+        task.wait(0.5)
+        local code = fetchcode()
+        if code then
+            animcode(code)
+        end
+    end)
+end
