@@ -6,7 +6,8 @@ end
 Sync v2.7
 ]]
 
-local Codeless = true -- Set to true to bypass key system
+local Codeless = false -- Set to true to bypass key system
+local KeyCode = "SYNC_DEV" -- The code to enter
 
 if getgenv().SyncExecuted then
     local localplr = game.Players.LocalPlayer
@@ -716,6 +717,104 @@ else
     UserTier = "Free"
 end
 
+local Verified = false
+
+if Codeless then
+    Verified = true
+else
+    local keyscreen = Instance.new("ScreenGui")
+    keyscreen.Name = "SyncKeySystem"
+    keyscreen.ResetOnSpawn = false
+    keyscreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    keyscreen.DisplayOrder = 2147483647
+    keyscreen.Parent = PlayerGui
+    
+    local keycontainer = Instance.new("Frame")
+    keycontainer.Name = "KeyContainer"
+    keycontainer.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    keycontainer.BorderSizePixel = 0
+    keycontainer.Size = UDim2.new(0, 320, 0, 180)
+    keycontainer.Position = UDim2.new(0.5, -160, 0.5, -90)
+    keycontainer.Parent = keyscreen
+    
+    local keycorner = Instance.new("UICorner")
+    keycorner.CornerRadius = UDim.new(0, 16)
+    keycorner.Parent = keycontainer
+    
+    local keygradient = Instance.new("UIGradient")
+    keygradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 30, 50)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 20, 35))
+    }
+    keygradient.Rotation = 45
+    keygradient.Parent = keycontainer
+    
+    local keytitle = Instance.new("TextLabel")
+    keytitle.BackgroundTransparency = 1
+    keytitle.Size = UDim2.new(1, 0, 0, 40)
+    keytitle.Position = UDim2.new(0, 0, 0, 10)
+    keytitle.Text = "Authentication"
+    keytitle.TextColor3 = Color3.fromRGB(150, 120, 255)
+    keytitle.TextSize = 20
+    keytitle.Font = Enum.Font.GothamBold
+    keytitle.Parent = keycontainer
+    
+    local keyinput = Instance.new("TextBox")
+    keyinput.BackgroundColor3 = Color3.fromRGB(40, 35, 50)
+    keyinput.Size = UDim2.new(0, 260, 0, 45)
+    keyinput.Position = UDim2.new(0.5, -130, 0, 60)
+    keyinput.PlaceholderText = "Enter Key..."
+    keyinput.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+    keyinput.Text = ""
+    keyinput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    keyinput.TextSize = 15
+    keyinput.Font = Enum.Font.Gotham
+    keyinput.ClearTextOnFocus = false
+    keyinput.Parent = keycontainer
+    
+    Instance.new("UICorner", keyinput).CornerRadius = UDim.new(0, 12)
+    
+    local submitbtn = Instance.new("TextButton")
+    submitbtn.BackgroundColor3 = Color3.fromRGB(150, 100, 255)
+    submitbtn.Size = UDim2.new(0, 260, 0, 40)
+    submitbtn.Position = UDim2.new(0.5, -130, 0, 120)
+    submitbtn.Text = "Submit"
+    submitbtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    submitbtn.TextSize = 15
+    submitbtn.Font = Enum.Font.GothamBold
+    submitbtn.AutoButtonColor = false
+    submitbtn.Parent = keycontainer
+    
+    Instance.new("UICorner", submitbtn).CornerRadius = UDim.new(0, 12)
+    
+    local function checkKey()
+        if keyinput.Text == KeyCode then
+            notify.new("Key accepted!", 3, "success")
+            anim(keycontainer, 0.5, {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+            task.wait(0.5)
+            keyscreen:Destroy()
+            Verified = true
+        else
+            notify.new("Incorrect key!", 3, "error")
+            anim(keyinput, 0.1, {BackgroundColor3 = Color3.fromRGB(255, 100, 120)}):Play()
+            task.wait(0.1)
+            anim(keyinput, 0.1, {BackgroundColor3 = Color3.fromRGB(40, 35, 50)}):Play()
+        end
+    end
+    
+    submitbtn.MouseButton1Click:Connect(checkKey)
+    keyinput.FocusLost:Connect(function(enter)
+        if enter then checkKey() end
+    end)
+    
+    -- Mobile Support
+    if IsMobile then
+        keycontainer.Position = UDim2.new(0.5, -160, 0.3, 0) -- Move up for keyboard
+    end
+    
+    repeat task.wait() until Verified
+end
+
 local screen = Instance.new("ScreenGui")
 screen.Name = "SyncGui"
 screen.ResetOnSpawn = false
@@ -937,6 +1036,9 @@ if status and status.s == 1 then
     popupcontainer.BackgroundColor3 = Color3.fromRGB(28, 23, 38)
     popupcontainer.Size = UDim2.new(0, 420, 0, 180)
     popupcontainer.Position = UDim2.new(0.5, -210, 0.5, -90)
+    if IsMobile then
+        popupcontainer.Position = UDim2.new(0.5, -210, 0.3, 0) -- Move up for keyboard on mobile
+    end
     popupcontainer.BorderSizePixel = 0
     popupcontainer.Visible = false
     popupcontainer.ZIndex = 2147483640
